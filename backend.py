@@ -200,4 +200,4 @@ def download_db():
             headers={"Content-Disposition": "attachment; filename=emp_tracking.db"}
         )
     else:
-        return {"error": "Database file not found"}
+        return JSONResponse(status_code=404, content={"error": "Database file not found"})
