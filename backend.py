@@ -121,17 +121,19 @@ def home():
 def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
         normalized_username = user.username.strip().lower()
-        print(f"Registering: {normalized_username}")
+        normalized_role = user.role.strip().lower()
+        print(f"Registering: {normalized_username} with role: {normalized_role}")
 
         existing = db.query(User).filter(User.username == normalized_username).first()
         if existing:
             raise HTTPException(status_code=400, detail="Username already exists")
 
         hashed_pw = get_password_hash(user.password)
-        db_user = User(username=normalized_username, password=hashed_pw, role=user.role)
+        db_user = User(username=normalized_username, password=hashed_pw, role=normalized_role)
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
+        print(f"✅ Registered user: {db_user.username}, role={db_user.role}")
         return {"message": "User created successfully"}
 
     except IntegrityError:
