@@ -9,9 +9,12 @@ from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
+from fastapi.responses import FileResponse
+import os
 
 # DATABASE SETUP
-DATABASE_URL = "sqlite:///./emp_tracking.db"
+## old DATABASE_URL = "sqlite:///./emp_tracking.db"
+DATABASE_URL = "sqlite:////tmp/emp_tracking.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
@@ -186,3 +189,15 @@ def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_cu
         raise HTTPException(status_code=403, detail="Only admin can view users")
     return db.query(User).all()
 
+@app.get("/download-db")
+def download_db():
+    db_path = "/tmp/emp_tracking.db"
+    if os.path.exists(db_path):
+        return FileResponse(
+            path=db_path,
+            filename="emp_tracking.db",
+            media_type='application/octet-stream',
+            headers={"Content-Disposition": "attachment; filename=emp_tracking.db"}
+        )
+    else:
+        return {"error": "Database file not found"}
