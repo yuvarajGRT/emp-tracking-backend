@@ -110,6 +110,10 @@ app.add_middleware(
 
 # ENDPOINTS
 
+@app.get("/")
+def home():
+    return {"message": "✅ Employee Tracking API is running"}
+
 @app.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
@@ -182,6 +186,3 @@ def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_cu
         raise HTTPException(status_code=403, detail="Only admin can view users")
     return db.query(User).all()
 
-@app.get("/")
-def home():
-    return {"message": "✅ Employee Tracking API is running"}
